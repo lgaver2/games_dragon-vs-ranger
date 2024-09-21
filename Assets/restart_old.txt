@@ -1,0 +1,206 @@
+using System;
+using UnityEngine;
+using GoogleMobileAds;
+using GoogleMobileAds.Api;
+using UnityEngine.UI;
+using TMPro;
+using System.IO;
+
+public class restart : MonoBehaviour
+{
+    private string Message;
+    public GameObject pane;
+    public GameObject pane_2;
+    public GameObject txt;
+    public GameObject txt_2;
+    public GameObject dragon;
+    GameObject BGM;
+    GameObject spd;
+    GameObject point;
+    int scor;
+    int lv;
+    private RewardedAd rewardedAd;
+
+    // Use this for initialization
+    void Start()
+    {
+
+#if UNITY_ANDROID
+        string appId = "ca-app-pub-6337026109907124~8846114228";
+#elif UNITY_IPHONE
+        string appId = "ca-app-pub-3940256099942544~1458002511";
+#else
+        string appId = "unexpected_platform";
+#endif
+        // Initialize the Google Mobile Ads SDK.
+        MobileAds.Initialize(appId);
+        RequestRewardAd();
+        pane.SetActive(false);
+        pane_2.SetActive(false);
+        spd = GameObject.Find("spawndirecot");
+        point = GameObject.Find("scoredirector");
+        BGM = GameObject.Find("BGM_2");
+
+    }
+
+    private void Update()
+    {
+
+    }
+
+
+    public void UserChoseToWatchAd()
+    {
+        if (this.rewardedAd.IsLoaded())
+        {
+            this.rewardedAd.Show();
+        }
+    }
+
+
+    void RequestRewardAd()
+    {
+#if UNITY_ANDROID
+        string adUnitId = "ca-app-pub-6337026109907124/7396694319";
+#elif UNITY_IPHONE
+        string adUnitId = "ca-app-pub-3940256099942544/2934735716";
+#else
+        string adUnitId = "unexpected_platform";
+#endif
+        this.rewardedAd = new RewardedAd(adUnitId);
+
+        // Load成功時に実行する関数の登録
+        this.rewardedAd.OnAdLoaded += HandleRewardedAdLoaded;
+        // Load失敗時に実行する関数の登録
+        this.rewardedAd.OnAdFailedToLoad += HandleRewardedAdFailedToLoad;
+        // 表示時に実行する関数の登録
+        this.rewardedAd.OnAdOpening += HandleRewardedAdOpening;
+        // 表示失敗時に実行する関数の登録
+        this.rewardedAd.OnAdFailedToShow += HandleRewardedAdFailedToShow;
+        // 報酬受け取り時に実行する関数の登録
+        this.rewardedAd.OnUserEarnedReward += HandleUserEarnedReward;
+        // 広告を閉じる時に実行する関数の登録
+        this.rewardedAd.OnAdClosed += HandleRewardedAdClosed;
+
+        AdRequest request = new AdRequest.Builder().Build();
+        this.rewardedAd.LoadAd(request);
+    }
+
+
+
+
+
+
+
+    public void CreateAndLoadRewardedAd()
+    {
+#if UNITY_ANDROID
+        string adUnitId = "ca-app-pub-6337026109907124/7396694319";
+#elif UNITY_IPHONE
+            string adUnitId = "ca-app-pub-3940256099942544/1712485313";
+#else
+            string adUnitId = "unexpected_platform";
+#endif
+
+        this.rewardedAd = new RewardedAd(adUnitId);
+
+        this.rewardedAd.OnAdLoaded += HandleRewardedAdLoaded;
+        this.rewardedAd.OnUserEarnedReward += HandleUserEarnedReward;
+        this.rewardedAd.OnAdClosed += HandleRewardedAdClosed;
+
+        AdRequest request = new AdRequest.Builder().Build();
+        this.rewardedAd.LoadAd(request);
+    }
+
+
+    public void HandleRewardedAdLoaded(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleRewardedAdLoaded event received");
+    }
+
+    public void HandleRewardedAdFailedToLoad(object sender, AdErrorEventArgs args)
+    {
+        MonoBehaviour.print(
+            "HandleRewardedAdFailedToLoad event received with message: "
+                             + args.Message);
+
+    }
+
+    public void HandleRewardedAdOpening(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleRewardedAdOpening event received");
+    }
+
+    public void HandleRewardedAdFailedToShow(object sender, AdErrorEventArgs args)
+    {
+        MonoBehaviour.print(
+            "HandleRewardedAdFailedToShow event received with message: "
+                             + args.Message);
+    }
+
+    public void HandleRewardedAdClosed(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleRewardedAdClosed event received");
+        CreateAndLoadRewardedAd();
+    }
+
+    public void HandleUserEarnedReward(object sender, Reward args)
+    {
+        string type = args.Type;
+        double amount = args.Amount;
+        MonoBehaviour.print(
+            "HandleRewardedAdRewarded event received for "
+                        + amount.ToString() + " " + type);
+        rest();
+    }
+    public void open()
+    {
+        pane.SetActive(true);
+        //point.GetComponent<score>().stop();
+        BGM.GetComponent<sound_2>().stastop(true);
+        Time.timeScale = 0;
+
+    }
+    public void continues()
+    {
+
+    }
+    public void score()
+    {
+        pane_2.SetActive(true);
+        scor = point.GetComponent<score>().sc();
+        lv = spd.GetComponent<spawnd>().lvl();
+        best(scor, lv);
+        txt.GetComponent<TextMeshProUGUI>().text = "SCORE: " + scor.ToString("F0");
+        txt_2.GetComponent<TextMeshProUGUI>().text = "Level: " + lv.ToString("F0");
+    }
+    public void quit()
+    {
+        
+        spd.GetComponent<spawnd>().controlhp(-20, 0);
+        spd.GetComponent<spawnd>().level(0);
+        point.GetComponent<score>().start();
+        Time.timeScale = 1;
+    }
+    public void rest()
+    {
+        dragon.GetComponent<dragon_controller>().restart();
+        point.GetComponent<score>().start();
+        pane.SetActive(false);
+        Time.timeScale = PlayerPrefs.GetFloat("gs");
+        BGM.GetComponent<sound_2>().stastop(false);
+    }
+    void best(int sc,int lv)
+    {
+        if (PlayerPrefs.GetInt("bestlevel") < lv)
+        {
+            PlayerPrefs.SetInt("bestlevel", lv);
+        }
+        if (PlayerPrefs.GetInt("bestscore") < sc)
+        {
+            PlayerPrefs.SetInt("bestscore", sc);
+        }
+        PlayerPrefs.Save();
+    }
+}
+

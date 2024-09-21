@@ -1,0 +1,172 @@
+using System;
+using UnityEngine;
+using GoogleMobileAds;
+using GoogleMobileAds.Api;
+using UnityEngine.UI;
+
+public class shop : MonoBehaviour
+{
+    public GameObject shops;
+    GameObject spd;
+    GameObject pnum;
+    GameObject bg;
+    private RewardedAd rewardedAd;
+    int number = 0;
+    // Use this for initialization
+    void Start()
+    {
+
+#if UNITY_ANDROID
+        string appId = "ca-app-pub-6337026109907124~8846114228";
+#elif UNITY_IPHONE
+        string appId = "ca-app-pub-3940256099942544~1458002511";
+#else
+        string appId = "unexpected_platform";
+#endif
+        // Initialize the Google Mobile Ads SDK.
+        MobileAds.Initialize(appId);
+        RequestRewardAd();
+        shops.SetActive(false);
+        pnum = GameObject.Find("presentnum");
+        spd = GameObject.Find("spawndirecot");
+        bg = GameObject.Find("BGM");
+    }
+
+    private void Update()
+    {
+
+    }
+
+
+    public void UserChoseToWatchAd(int num)
+    {
+        number = num;
+        if (this.rewardedAd.IsLoaded())
+        {
+            this.rewardedAd.Show();
+        }
+    }
+
+
+    void RequestRewardAd()
+    {
+#if UNITY_ANDROID
+        string adUnitId = "ca-app-pub-6337026109907124/7396694319";
+#elif UNITY_IPHONE
+        string adUnitId = "ca-app-pub-3940256099942544/2934735716";
+#else
+        string adUnitId = "unexpected_platform";
+#endif
+        this.rewardedAd = new RewardedAd(adUnitId);
+
+        // Load成功時に実行する関数の登録
+        this.rewardedAd.OnAdLoaded += HandleRewardedAdLoaded;
+        // Load失敗時に実行する関数の登録
+        this.rewardedAd.OnAdFailedToLoad += HandleRewardedAdFailedToLoad;
+        // 表示時に実行する関数の登録
+        this.rewardedAd.OnAdOpening += HandleRewardedAdOpening;
+        // 表示失敗時に実行する関数の登録
+        this.rewardedAd.OnAdFailedToShow += HandleRewardedAdFailedToShow;
+        // 報酬受け取り時に実行する関数の登録
+        this.rewardedAd.OnUserEarnedReward += HandleUserEarnedReward;
+        // 広告を閉じる時に実行する関数の登録
+        this.rewardedAd.OnAdClosed += HandleRewardedAdClosed;
+
+        AdRequest request = new AdRequest.Builder().Build();
+        this.rewardedAd.LoadAd(request);
+    }
+
+
+
+
+    public void CreateAndLoadRewardedAd()
+    {
+#if UNITY_ANDROID
+        string adUnitId = "ca-app-pub-6337026109907124/7396694319";
+#elif UNITY_IPHONE
+            string adUnitId = "ca-app-pub-3940256099942544/1712485313";
+#else
+            string adUnitId = "unexpected_platform";
+#endif
+
+        this.rewardedAd = new RewardedAd(adUnitId);
+
+        this.rewardedAd.OnAdLoaded += HandleRewardedAdLoaded;
+        this.rewardedAd.OnUserEarnedReward += HandleUserEarnedReward;
+        this.rewardedAd.OnAdClosed += HandleRewardedAdClosed;
+
+        AdRequest request = new AdRequest.Builder().Build();
+        this.rewardedAd.LoadAd(request);
+    }
+
+
+    public void HandleRewardedAdLoaded(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleRewardedAdLoaded event received");
+    }
+
+    public void HandleRewardedAdFailedToLoad(object sender, AdErrorEventArgs args)
+    {
+        MonoBehaviour.print(
+            "HandleRewardedAdFailedToLoad event received with message: "
+                             + args.Message);
+
+    }
+
+    public void HandleRewardedAdOpening(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleRewardedAdOpening event received");
+    }
+
+    public void HandleRewardedAdFailedToShow(object sender, AdErrorEventArgs args)
+    {
+        MonoBehaviour.print(
+            "HandleRewardedAdFailedToShow event received with message: "
+                             + args.Message);
+    }
+
+    public void HandleRewardedAdClosed(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleRewardedAdClosed event received");
+        CreateAndLoadRewardedAd();
+    }
+
+    public void HandleUserEarnedReward(object sender, Reward args)
+    {
+        string type = args.Type;
+        double amount = args.Amount;
+        MonoBehaviour.print(
+            "HandleRewardedAdRewarded event received for "
+                        + amount.ToString() + " " + type);
+        switch (number)
+        {
+            case 0:
+                pnum.GetComponent<presentnum>().add(5, 0, 0);
+                break;
+            case 1:
+                pnum.GetComponent<presentnum>().add(0, 5, 0);
+                break;
+            case 2:
+                pnum.GetComponent<presentnum>().add(0, 0, 5); ;
+                break;
+            case 3:
+                spd.GetComponent<spawnd>().doublehp();
+                break;
+            default:
+                break;
+        }
+    }
+    public void open()
+    {
+        shops.SetActive(true);
+        bg.GetComponent<sound>().stastop(true);
+        bg.GetComponent<sound>().change_bgm(2);
+    }
+    public void close()
+    {
+        shops.SetActive(false);
+        bg.GetComponent<sound>().stastop(true);
+        bg.GetComponent<sound>().change_bgm(0);
+    }
+}
+

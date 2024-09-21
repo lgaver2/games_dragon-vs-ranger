@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/start.unity
+    guid: f3b0d95e2ed24c54ba1709dc35c0dee2
+  - enabled: 1
+    path: Assets/Scenes/SampleScene.unity
+    guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/bossselver.unity
+    guid: c48375eb66d479c48bf78c699bf64c32
+  - enabled: 1
+    path: Assets/Scenes/bossgold.unity
+    guid: 289e328331c352a4cadc0387c18bf791
+  m_configObjects: {}
